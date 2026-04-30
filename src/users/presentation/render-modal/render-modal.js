@@ -1,11 +1,29 @@
 import modalHTML from "./render-modal.html?raw"; // el ?raw se hace para importar html en vite
 import {} from "../render-modal/render-modal.css";
+import { User } from "../../models/user";
+import { getUserById } from "../../use-cases/get-user-by-id";
 let modal;
 let form;
+let loadedUsers;
 
+/**
+ *
+ * @param {String} id
+ * @returns
+ */
 // TODO: cargar usuarios
-export const showModal = () => {
+export const showModal = async (id) => {
   modal?.classList.remove("hide-modal");
+
+  loadedUsers = {};
+
+  if (!id) {
+    loadedUsers = {};
+    return;
+  }
+
+  const user = await getUserById(id);
+  setFormValue(user);
 };
 
 export const hideModal = () => {
@@ -13,6 +31,21 @@ export const hideModal = () => {
 
   form?.reset();
 };
+
+/**
+ *
+ * @param {User} user
+ */
+const setFormValue = (user) => {
+  loadedUsers = {};
+  form.querySelector('[name="firstName"]').value = user.firstName;
+  form.querySelector('[name="lastName"]').value = user.lastName;
+  form.querySelector('[name="balance"]').value = user.balance;
+  form.querySelector('[name="isActive"]').value = user.isActive;
+
+  loadedUsers = user;
+};
+
 /**
  *
  * @param {HTMLDivElement} element
@@ -37,9 +70,8 @@ export const renderModal = (element, callback) => {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // console.log("Formulario Enviado");
     const formData = new FormData(form);
-    const userLike = {};
+    const userLike = { ...loadedUsers };
 
     for (const [key, value] of formData) {
       if (key === "balance") {
@@ -55,7 +87,6 @@ export const renderModal = (element, callback) => {
       userLike[key] = value;
     }
 
-    // console.log(userLike);
     await callback(userLike);
     hideModal();
   });
