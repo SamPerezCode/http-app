@@ -41,7 +41,7 @@ const setFormValue = (user) => {
   form.querySelector('[name="firstName"]').value = user.firstName;
   form.querySelector('[name="lastName"]').value = user.lastName;
   form.querySelector('[name="balance"]').value = user.balance;
-  form.querySelector('[name="isActive"]').value = user.isActive;
+  form.querySelector('[name="isActive"]').checked = !!user.isActive;
 
   loadedUsers = user;
 };
@@ -79,13 +79,13 @@ export const renderModal = (element, callback) => {
         continue;
       }
 
-      if (key === "isActive") {
-        userLike[key] = value === "on" ? true : false;
-        continue;
-      }
-
+      if (key === "isActive") continue; // lo seteamos al final
       userLike[key] = value;
     }
+
+    userLike.isActive = form.querySelector(
+      '[name="isActive"]'
+    ).checked;
 
     await callback(userLike);
     hideModal();
